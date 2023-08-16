@@ -29,25 +29,29 @@ public class GetVisibilidadAdapter implements GetVisibilidadPort {
 		
 		List<Long> visibleProducts = new ArrayList<>();
 		List<Long> distincProducts = sizeRepository.findDistinctProductId();
-		for(Long productId : distincProducts) {
-			Long totalStock = 0L;
+		for(Long productId : distincProducts) { // Repite N cardinalidad
+			int hasStock = 0;
+			boolean hasSpecialCondition = false;
+			boolean hasSpecialStock = true;
 			List<SizeEntity> sizes = sizeRepository.findByProductId(productId);
-			for(SizeEntity sizeEntity : sizes) {	
+			for(SizeEntity sizeEntity : sizes) { // Repite M cardinalidad
+				hasSpecialCondition = hasSpecialCondition || sizeEntity.getSpecial();
 				if(sizeEntity.getBackSoon()) {
-					totalStock++;
+					hasStock++;
 				}else {
 					Long quantity = stockRepository.findBySizeId(sizeEntity.getId()).getQuantity();
-					if(sizeEntity.getSpecial() && quantity == 0) {
-						totalStock = 0L;
-						break;
+					if(quantity > 0) {
+						hasStock++;
+					}else if (sizeEntity.getSpecial()){						
+						hasSpecialStock = false;
 					}
-					totalStock +=quantity;
 				}
 			}
-			if(totalStock > 0L) {
+			if(!hasSpecialCondition && hasStock > 0 || hasSpecialCondition && hasStock >= 2 && hasSpecialStock) {
 				visibleProducts.add(productId);
 			}
 		}
 		return productRepository.findProductsOrderBySequenceAsc(visibleProducts).stream().map(e -> e.getId()).toList();
+		//Complejidad O(n·m) = O(n^2)
 	}
 }

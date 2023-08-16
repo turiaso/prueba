@@ -1,6 +1,6 @@
 package com.inditex.visibilidad.database.usecase.getvisibilidad;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,11 +22,8 @@ public class GetVisibilidadAdapterTest {
 
 	@Test
 	public void getVisibilidad() {
-		List<Long> products = getVisibilidadAdapter.getVisibilidad();
-		
-		List<Long> expectedResult = Arrays.asList(5L, 2L, 1L, 4L, 3L);
-		for(int i = 0; i < expectedResult.size(); i++) {
-			assertEquals(expectedResult.get(i), products.get(i));
-		}
+		List<Long> products = getVisibilidadAdapter.getVisibilidad();		
+		List<Long> expectedResult = Arrays.asList(5L, 1L, 3L);
+		assertArrayEquals(expectedResult.toArray(), products.toArray());
 	}
 }
